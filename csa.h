@@ -14,7 +14,10 @@
 #if defined(__cplusplus)
 
     #if defined(_MSC_VER) && defined(_MSVC_LANG)
-		/* Actually kinda useless nowadays because MSVC does not have compilation flags for anything below C++14, so this is only useful if you are compiling with an ancient MSVC version. In that case, this should be useful I suppose, but even then, anything that old would not support C++11 anyways, so we'd jump straight to the enum fallback trick implementation */
+		/*
+		Actually kinda useless nowadays because MSVC does not have compilation flags for anything below C++14, so this is only useful if you are compiling with an ancient MSVC version. In that case, this should be useful I suppose, but even then, anything that old would not support C++11 anyways, so we'd jump straight to the enum fallback trick implementation.
+		Also note that the _MSVC_LANG macro is not too reliable, but realiable enough for most library implementation purposes. On some versions of MSVC, it sometimes wrongfully reports C++17 as C++20 or higher. This is not too much of an issue tho, because if simply allows your library to use C++20 and higher features when compiling in C++17 mode in MSVC, which is like using compiler extensions, so whatever. Only an issue if you end up finding a specific feature that is defined but not implemented, ending up in compilation errors and required workarounds for MSVC, as usual...
+		*/
         #define CSA_CXX_VERSION _MSVC_LANG
     #else
         #define CSA_CXX_VERSION __cplusplus
