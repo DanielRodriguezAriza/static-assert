@@ -14,6 +14,7 @@
 #if defined(__cplusplus)
 
     #if defined(_MSC_VER) && defined(_MSVC_LANG)
+		/* Actually kinda useless nowadays because MSVC does not have compilation flags for anything below C++14, so this is only useful if you are compiling with an ancient MSVC version. In that case, this should be useful I suppose, but even then, anything that old would not support C++11 anyways, so we'd jump straight to the enum fallback trick implementation */
         #define CSA_CXX_VERSION _MSVC_LANG
     #else
         #define CSA_CXX_VERSION __cplusplus
