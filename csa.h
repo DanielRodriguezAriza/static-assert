@@ -21,36 +21,36 @@
 
 #if defined(__cplusplus)
 
-    #if defined(_MSC_VER) && defined(_MSVC_LANG)
-        #define CSA_CXX_VERSION _MSVC_LANG
-    #else
-        #define CSA_CXX_VERSION __cplusplus
-    #endif
+	#if defined(_MSC_VER) && defined(_MSVC_LANG)
+		#define CSA_CXX_VERSION _MSVC_LANG
+	#else
+		#define CSA_CXX_VERSION __cplusplus
+	#endif
 
-    #if CSA_CXX_VERSION >= 201103L
-        #define CSA_STATIC_ASSERT(c, s) static_assert(c, s)
-        #define CSA_DEFINITION_ID CSA_DEFINITION_ID_CXX
-        #define CSA_DEFINITION_STR CSA_DEFINITION_STR_CXX
-    #endif
+	#if CSA_CXX_VERSION >= 201103L
+		#define CSA_STATIC_ASSERT(c, s) static_assert(c, s)
+		#define CSA_DEFINITION_ID CSA_DEFINITION_ID_CXX
+		#define CSA_DEFINITION_STR CSA_DEFINITION_STR_CXX
+	#endif
 
 #else
 
-    #if defined(__STDC_VERSION__)
-        #if __STDC_VERSION__ >= 202311L
-            #define CSA_STATIC_ASSERT(c, s) static_assert(c, s)
-            #define CSA_DEFINITION_ID CSA_DEFINITION_ID_C23
-            #define CSA_DEFINITION_STR CSA_DEFINITION_STR_C23
-        #elif __STDC_VERSION__ >= 201112L
-            #define CSA_STATIC_ASSERT(c, s) _Static_assert(c, s)
-            #define CSA_DEFINITION_ID CSA_DEFINITION_ID_C11
-            #define CSA_DEFINITION_STR CSA_DEFINITION_STR_C11
-        #endif
-    #endif
+	#if defined(__STDC_VERSION__)
+		#if __STDC_VERSION__ >= 202311L
+			#define CSA_STATIC_ASSERT(c, s) static_assert(c, s)
+			#define CSA_DEFINITION_ID CSA_DEFINITION_ID_C23
+			#define CSA_DEFINITION_STR CSA_DEFINITION_STR_C23
+		#elif __STDC_VERSION__ >= 201112L
+			#define CSA_STATIC_ASSERT(c, s) _Static_assert(c, s)
+			#define CSA_DEFINITION_ID CSA_DEFINITION_ID_C11
+			#define CSA_DEFINITION_STR CSA_DEFINITION_STR_C11
+		#endif
+	#endif
 
 #endif
 
 #if !defined(CSA_STATIC_ASSERT)
-    
+	
 	#define CSA_DEFINITION_ID CSA_DEFINITION_ID_FALLBACK
 	#define CSA_DEFINITION_STR CSA_DEFINITION_STR_FALLBACK
 	
