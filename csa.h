@@ -11,6 +11,13 @@
 #define CSA_DEFINITION_STR_C23 "CSA C23 static_assert"
 #define CSA_DEFINITION_STR_FBT "CSA fallback enum trick"
 
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM 0
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF 1
+
+#ifndef CSA_STATIC_ASSERT_FALLBACK_MODE
+#define CSA_STATIC_ASSERT_FALLBACK_MODE CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF
+#endif
+
 #if defined(__cplusplus)
 
     #if defined(_MSC_VER) && defined(_MSVC_LANG)
@@ -47,18 +54,30 @@
 
 #if !defined(CSA_STATIC_ASSERT)
     
-    #define CSA_CATI(x, y) x##y
-    #define CSA_CAT(x, y) CSA_CATI(x, y)
+	#if CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
+	
+		#define CSA_CATI(x, y) x##y
+		#define CSA_CAT(x, y) CSA_CATI(x, y)
 
-    #define CSA_STATIC_ASSERTI(c, l) enum { CSA_CAT(csa_custom_static_assert_at_, l) = 1 / (!!(c)) }
-    #define CSA_DEFINITION_ID CSA_DEFINITION_ID_FBT
-    #define CSA_DEFINITION_STR CSA_DEFINITION_STR_FBT
-    
-    #ifdef __COUNTER__
-        #define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __COUNTER__)
-    #else
-        #define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __LINE__)
-    #endif
+		#define CSA_STATIC_ASSERTI(c, l) enum { CSA_CAT(csa_custom_static_assert_enum_, l) = 1 / (!!(c)) }
+		#define CSA_DEFINITION_ID CSA_DEFINITION_ID_FBT
+		#define CSA_DEFINITION_STR CSA_DEFINITION_STR_FBT
+		
+		#ifdef __COUNTER__
+			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __COUNTER__)
+		#else
+			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __LINE__)
+		#endif
+	
+	#elif CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF
+		
+		#define CSA_STATIC_ASSERT(c, s) typedef int csa_custom_static_assert_typedef[1 - 2*(!(c))]
+		
+	#else
+		
+		#error "No valid CSA_STATIC_ASSERT_FALLBACK_MODE was selected"
+	
+	#endif
 
 #endif
 
