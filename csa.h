@@ -95,6 +95,12 @@
 
     #define CSA_CATI(x, y) x##y
     #define CSA_CAT(x, y) CSA_CATI(x, y)
+
+    #ifdef __COUNTER__
+        #define CSA_COUNTER __COUNTER__
+    #else
+        #define CSA_COUNTER __LINE__
+    #endif
 	
 	#if CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
 
@@ -104,13 +110,7 @@
 			Supported by all standard versions of C and C++, as far as I'm aware.
 			Ensures that the condition must be a compiletime known constant, because enum values cannot be assigned a runtime value in C and C++.
 		*/
-		#define CSA_STATIC_ASSERTI(c, l) enum { CSA_CAT(csa_custom_static_assert_enum_, l) = 1 / (!!(c)) }
-		
-		#ifdef __COUNTER__
-			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __COUNTER__)
-		#else
-			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __LINE__)
-		#endif
+		#define CSA_STATIC_ASSERT(c, s) enum { CSA_CAT(csa_custom_static_assert_enum_, CSA_COUNTER) = 1 / (!!(c)) }
 	
 	#elif CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF
 		
@@ -155,12 +155,7 @@
         #define CSA_STATIC_ASSERTI(c, l) \
             enum { CSA_CAT(csa_custom_static_assert_enum_, l) = 1 / (!!(c)) }; \
             typedef int csa_custom_static_assert_typedef[CSA_CAT(csa_custom_static_assert_enum_, l)]
-		
-		#ifdef __COUNTER__
-			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __COUNTER__)
-		#else
-			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __LINE__)
-		#endif
+		#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, CSA_COUNTER)
 
 	#elif CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_USER_DEFINED
 		
