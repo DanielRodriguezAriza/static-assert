@@ -133,6 +133,14 @@
 			assertion trigger. But if your condition comes from a runtime value that can be used in a VLA definition context, it will be assumed to be
 			a positive and non zero value, which will result in the assertion not triggering any warnings or errors regarding a non constant value being used
 			as the condition.
+			
+			Note that using a trick like typedef int static_assert_array[cond? 1 : -1] still fails because cond could be a function argument or a variable,
+			so, suddenly you're once again dealing with valid VLA code for C, so what I have with 1 - 2*!c is ok, I guess. Basically the same thing tbh.
+			Doesn't really matter because the outcome is the same: it could be a VLA, so the typedef method is better in regards to more scopes being
+			supported, such as struct scope even in C, and in regards to not having to use unique counter macros, allowing even in fully standard C
+			compilers without __COUNTER__ support the ability to have more than one static assert in the same line, even if that's a dumb idea, because
+			typedefs can be redefined if their definition is the exact same and nothing happens... the problem is that if this can become a VLA, then
+			the static assertion is no longer caught at compiletime, so it becomes useless, making this method obviously worse than the others.
 		*/
 		#define CSA_STATIC_ASSERT(c, s) typedef int csa_custom_static_assert_typedef[1 - 2*(!(c))]
 	
