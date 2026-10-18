@@ -11,14 +11,19 @@
 #define CSA_DEFINITION_STR_C23      "CSA C23 static_assert"
 #define CSA_DEFINITION_STR_FALLBACK "CSA fallback trick"
 
-#define CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM          0
-#define CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF       1
-#define CSA_STATIC_ASSERT_FALLBACK_MODE_USER_DEFINED 99
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM             0
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF          1
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF_AND_ENUM 2
+#define CSA_STATIC_ASSERT_FALLBACK_MODE_USER_DEFINED     99
 
 #ifndef CSA_STATIC_ASSERT_FALLBACK_MODE
-/* Default fallback mode is enum because typedef may be unreliable if the compiler supports VLAs */
-#define CSA_STATIC_ASSERT_FALLBACK_MODE CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
+    /* Default fallback mode is enum because typedef may be unreliable if the compiler supports VLAs */
+    #define CSA_STATIC_ASSERT_FALLBACK_MODE CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
 #endif
+
+/* For personal testing
+#define CSA_FORCE_USE_FALLBACK
+*/
 
 #if defined(__cplusplus)
 
@@ -73,15 +78,25 @@
 
 #endif
 
+/*
+	This is mostly for internal testing, but if you want to use it, go ahead.
+	It would be cleaner to actually use a separate ifdef above rather than undefing stuff, but this is ok for now.
+*/
+#ifdef CSA_FORCE_USE_FALLBACK
+    #undef CSA_STATIC_ASSERT
+    #undef CSA_DEFINITION_ID
+    #undef CSA_DEFINITION_STR
+#endif
+
 #if !defined(CSA_STATIC_ASSERT)
 	
 	#define CSA_DEFINITION_ID CSA_DEFINITION_ID_FALLBACK
 	#define CSA_DEFINITION_STR CSA_DEFINITION_STR_FALLBACK
+
+    #define CSA_CATI(x, y) x##y
+    #define CSA_CAT(x, y) CSA_CATI(x, y)
 	
 	#if CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
-	
-		#define CSA_CATI(x, y) x##y
-		#define CSA_CAT(x, y) CSA_CATI(x, y)
 
 		/*
 			NOTE:
@@ -121,6 +136,32 @@
 		*/
 		#define CSA_STATIC_ASSERT(c, s) typedef int csa_custom_static_assert_typedef[1 - 2*(!(c))]
 	
+    #elif CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_TYPEDEF_AND_ENUM
+
+        /*
+            This one's kinda silly. It basically mixes the enum and typedef tricks into one,
+            by using the enum to get a compiletime constant for the array size, and the
+            typedef to get a smaller error message after macro expansion.
+
+            Also note that we only get smaller error messages on SOME compilers, not all, so this
+            extra effort is just kinda pointless anyway, but still, it's an idea I had and I wanted
+            to test it.
+
+            To be honest, the error message for 0/0 on an enum is pretty small if written by hand,
+            the macro expansion is the main issue, so maybe this library thing is kinda pointless,
+            but fuck it I guess.
+        */
+
+        #define CSA_STATIC_ASSERTI(c, l) \
+            enum { CSA_CAT(csa_custom_static_assert_enum_, l) = 1 / (!!(c)) }; \
+            typedef int csa_custom_static_assert_typedef[CSA_CAT(csa_custom_static_assert_enum_, l)]
+		
+		#ifdef __COUNTER__
+			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __COUNTER__)
+		#else
+			#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERTI(c, __LINE__)
+		#endif
+
 	#elif CSA_STATIC_ASSERT_FALLBACK_MODE == CSA_STATIC_ASSERT_FALLBACK_MODE_USER_DEFINED
 		
 		#ifndef CSA_STATIC_ASSERT_USER_DEFINED
@@ -128,7 +169,7 @@
 		#endif
 		
 		#define CSA_STATIC_ASSERT(c, s) CSA_STATIC_ASSERT_USER_DEFINED(c, s)
-	
+
 	#else
 		
 		#error "No valid CSA_STATIC_ASSERT_FALLBACK_MODE was selected"
@@ -138,5 +179,10 @@
 #endif
 
 #define custom_static_assert(cond, str) CSA_STATIC_ASSERT(cond, str)
+
+/* For personal testing
+custom_static_assert(1, "Testing the error");
+custom_static_assert(0, "Testing the error");
+*/
 
 #endif
