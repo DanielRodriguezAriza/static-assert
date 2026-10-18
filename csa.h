@@ -21,7 +21,7 @@
     #define CSA_STATIC_ASSERT_FALLBACK_MODE CSA_STATIC_ASSERT_FALLBACK_MODE_ENUM
 #endif
 
-/* For personal testing
+/* For testing purposes
 #define CSA_FORCE_USE_FALLBACK
 */
 
@@ -183,9 +183,23 @@
 
 #define custom_static_assert(cond, str) CSA_STATIC_ASSERT(cond, str)
 
-/* For personal testing
+/* For testing purposes
 custom_static_assert(1, "Testing the error");
 custom_static_assert(0, "Testing the error");
+*/
+
+/*
+	NOTE: All of this is great and all that, but for most people, maybe the following would be a better choice if they do not care much about
+	error messages and just want a middle ground between less cluttered and actually supporting all C and C++ versions...
+	
+	#define MY_ASSERT(x, y) enum { the_error = 0/x }
+	MY_ASSERT(cond, "the error message");
+	
+	Maybe consider this if this library seems like too much voodoo and bloat for your usecase... I know I will probably make a simpler thing for personal
+	projects in the future, because this library tries to appeal to too many potential target consumers who may want to do things slightly differently.
+	
+	The thing about offering configurable fallback methods is actually kinda stupid, but it's here just in case someone finds it useful. Also this is more
+	like a scratchpad of different ideas and methods that I've come up over time, so yeah, not really the best architected thing in the world...
 */
 
 #endif
